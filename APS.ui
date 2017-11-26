@@ -156,7 +156,7 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources>
-  <include location="test.qrc"/>
+  <include location="APS.qrc"/>
  </resources>
  <connections/>
 </ui>
