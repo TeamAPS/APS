@@ -1,3 +1,4 @@
+import os
 import sys
 import serial
 from PyQt5 import QtWidgets, uic
@@ -22,16 +23,21 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		QtWidgets.QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
 		self.setupUi(self)
-		self.APSsetupStatus.setText("Please set up the APS")
+		self.dataPathBox.setText("No File Selected")
 		self.findPlaneLimits.setEnabled(False)
 		self.comPort = None
+		self.dataFilePath = None
 		
 		# Populate the COM port list
-		self.comPortChoice.addItem("None Selected")
+		self.comPortChoice.addItem("No Port Selected")
 		for serialPort in availableSerialPorts:
 			self.comPortChoice.addItem(str(serialPort))
+			
+		# Buttons and dependencies
 		self.comPortChoice.currentIndexChanged.connect(self.connectArduino)
 		self.findPlaneLimits.clicked.connect(self.getLimits)
+		self.dataPathBrowse.clicked.connect(self.selectDataPath)
+		self.dataPathBox.textChanged.connect(self.updateDataPath)
 	
 	
 	def connectArduino(self):
@@ -55,9 +61,45 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if arduinoSerial.read() == "1":
 			arduinoSerial.write("2")
 		self.findPlaneLimits.setEnabled(False)
-		self.APSsetupStatus.setText("APS setup completed!")
+		self.APSsetupStatus.setText("APS Setup Completed!")
 		self.comPortChoice.setEnabled(False)
 		arduinoSerial.close
+		
+	def selectDataPath(self):
+		# The first item in the tuple is the file path needed
+		filePath = QtWidgets.QFileDialog.getSaveFileName(self,
+			'Data File Location', os.getcwd(), filter='*.txt')[0]
+		# Make sure user chose a file
+		if not filePath == '':
+			# If chosen file doesn't exist, create it
+			if not os.path.isfile(filePath):
+				open(filePath, 'a').close()
+			self.dataPathStatus.setText("Data File Selected!")
+			self.dataFilePath = filePath
+			self.dataPathBox.setText(filePath)
+	
+	def updateDataPath(self):
+		filePath = self.dataPathBox.displayText()
+		# Make sure user chose a correct file
+		if filePath.endswith(".txt"):
+			# Try to create the file if it doesn't exist
+			try:
+				if not os.path.isfile(filePath):
+					open(filePath, 'a').close()
+				self.dataPathStatus.setText("Data File Selected!")
+				self.dataFilePath = filePath
+				self.dataPathBox.setText(filePath)
+			# If you get an error, it means the path isn't valid
+			except:
+				self.dataPathStatus.setText("Please Select a Valid File")
+				self.dataFilePath = None
+		else:
+			self.dataPathStatus.setText("Please Select a Valid File")
+			self.dataFilePath = None
+			
+				
+	
+		
 
 def main():
 	APSprogram = QtWidgets.QApplication(sys.argv)
