@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="APStopView">
+    <file>topview.jpg</file>
+  </qresource>
+</RCC>
