@@ -56,13 +56,15 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		while not arduinoReady:
 			if arduinoSerial.read() == "1":
 				arduinoReady = True
-		  
-		arduinoSerial.write("0")
+		
+		arduinoSerial.write("0\n")
+		arduinoSerial.write("400\n")
+		
+		
 		if arduinoSerial.read() == "1":
-			arduinoSerial.write("2")
-		self.findPlaneLimits.setEnabled(False)
-		self.APSsetupStatus.setText("APS Setup Completed!")
-		self.comPortChoice.setEnabled(False)
+			self.findPlaneLimits.setEnabled(False)
+			self.APSsetupStatus.setText("APS Setup Completed!")
+			self.comPortChoice.setEnabled(False)
 		arduinoSerial.close
 		
 	def selectDataPath(self):

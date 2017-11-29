@@ -1,79 +1,51 @@
-// Open a serial connection and flash LED when input is received
+// Define variables
+const int stepPin = 5;
+const int directionPin = 6;
+const int enablePin = 7;
+const int motorSpeed = 1000;
 
-void setup(){
+// Setup code; runs once
+void setup()
+{
+  
   // Open serial connection.
   Serial.begin(9600);
-  pinMode(6, OUTPUT);
+
+  // Define pin modes
+  pinMode(stepPin, OUTPUT);
+  pinMode(directionPin, OUTPUT);
+  pinMode(enablePin, OUTPUT);
+
+  // Print 1 to serial monitor when setup is compelete
   Serial.print('1');
 }
 
-void loop(){ 
-  int x;
-  x = Serial.read();
-  if(x == '0'){      // if data present, blink
-    digitalWrite(6, HIGH);
-    delay(500);            
-    digitalWrite(6, LOW);
-    delay(500); 
-    digitalWrite(6, HIGH);
-    delay(500);            
-    digitalWrite(6, LOW);
-    delay(500);
-    digitalWrite(6, HIGH);
-    delay(500);            
-    digitalWrite(6, LOW);
-    delay(500); 
-    digitalWrite(6, HIGH);
-    delay(500);            
-    digitalWrite(6, LOW);
-    delay(500);
-    Serial.write('1');
-  }
-  else if (x == '2')
+// Main program
+void loop()
+{ 
+  // Define variables
+  int pythonCommand;
+  int numberOfSteps;
+
+  // Initialize motor
+  digitalWrite(directionPin, HIGH);
+  digitalWrite(enablePin, LOW);  
+    
+  // Read what's in the serial monitor
+  pythonCommand = Serial.read();
+  
+  // If python is asking for a CW movement
+  if(pythonCommand == '0')
   {
-   digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100); 
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100);
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100); 
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100);
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100); 
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100);
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100); 
-    digitalWrite(6, HIGH);
-    delay(100);            
-    digitalWrite(6, LOW);
-    delay(100);
-    Serial.write('3');
-  }
-  else{
-    digitalWrite(6, HIGH);
-    delay(5);            
-    digitalWrite(6, LOW);
-    delay(5); 
-    digitalWrite(6, HIGH);
-    delay(5);            
-    digitalWrite(6, LOW);
-    delay(5);
+    numberOfSteps = Serial.readStringUntil("\n").toInt();
+    for(int i = 0; i < numberOfSteps; i++)
+    {
+       digitalWrite(stepPin, HIGH);
+      delayMicroseconds(motorSpeed);
+      digitalWrite(stepPin, LOW);
+      delayMicroseconds(motorSpeed); 
+    }  
+    Serial.write('1');
   }
 }
 
