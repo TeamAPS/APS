@@ -9,13 +9,12 @@ import time
 
 availableSerialPorts = serial.tools.list_ports.comports()
 
-##############################################################
-
 # Read and use the .ui file
 qtCreatorFile = "APS.ui"
- 
+
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
- 
+
+# GUI class 
 class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	
 	# Class intialization
@@ -25,6 +24,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.setupUi(self)
 		self.dataPathBox.setText("No File Selected")
 		self.findPlaneLimits.setEnabled(False)
+		self.arduinoSerial = None
 		self.comPort = None
 		self.dataFilePath = None
 		
@@ -51,21 +51,20 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	
 	def getLimits(self):
 		# Baud rate is 9600	
-		arduinoSerial = serial.Serial(self.comPort, 9600)
+		self.arduinoSerial = serial.Serial(self.comPort, 9600)
 		arduinoReady = False
 		while not arduinoReady:
-			if arduinoSerial.read() == "1":
+			if self.arduinoSerial.read() == "1":
 				arduinoReady = True
 		
-		arduinoSerial.write("0\n")
-		arduinoSerial.write("400\n")
+		self.moveMotor("y","CCW","300")
+		movementDone = self.moveMotor("y","CW","300")
+
 		
-		
-		if arduinoSerial.read() == "1":
+		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
 			self.APSsetupStatus.setText("APS Setup Completed!")
 			self.comPortChoice.setEnabled(False)
-		arduinoSerial.close
 		
 	def selectDataPath(self):
 		# The first item in the tuple is the file path needed
@@ -99,6 +98,36 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.dataPathStatus.setText("Please Select a Valid File")
 			self.dataFilePath = None
 			
+	def moveMotor(self, motorAxis, direction, steps):
+		
+		directionPinX = "9"
+		directionPinY = "6"
+		stepPinX = "10"
+		stepPinY = "5"
+		
+		if motorAxis == "x":
+			directions = {"CW":[directionPinX, "1"],
+				"CCW": [directionPinX, "0"]}
+		else:
+			directions = {"CW":[directionPinY, "1"],
+				"CCW": [directionPinY, "0"]}
+		axes = {"x": stepPinX, "y": stepPinY}
+		
+		self.arduinoSerial.write("0\n")
+		if self.arduinoSerial.read() == "1":
+			self.arduinoSerial.write(directions[direction][0]+"\n")	
+		if self.arduinoSerial.read() == "1":
+			self.arduinoSerial.write(directions[direction][1]+"\n")
+		if self.arduinoSerial.read() == "1":
+			self.arduinoSerial.write(steps+"\n")
+		if self.arduinoSerial.read() == "1":
+			self.arduinoSerial.write(axes[motorAxis]+"\n")
+		
+		if self.arduinoSerial.read() == "1":
+			self.arduinoSerial.close
+			return True
+		
+		
 				
 	
 		
