@@ -24,6 +24,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.setupUi(self)
 		self.dataPathBox.setText("No File Selected")
 		self.findPlaneLimits.setEnabled(False)
+		self.xOperationChoice.setEnabled(False)
+		self.yOperationChoice.setEnabled(False)
+		self.operationStart.setEnabled(False)
 		self.arduinoSerial = None
 		self.comPort = None
 		self.dataFilePath = None
@@ -38,6 +41,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.findPlaneLimits.clicked.connect(self.getLimits)
 		self.dataPathBrowse.clicked.connect(self.selectDataPath)
 		self.dataPathBox.textChanged.connect(self.updateDataPath)
+		self.manualModeRadio.clicked.connect(self.modeChanged)
+		self.autoModeRadio.clicked.connect(self.modeChanged)
+		self.xOperationChoice.textChanged.connect(self.enableStart)
+		self.yOperationChoice.textChanged.connect(self.enableStart)
+		self.operationStart.clicked.connect(self.startAPS)
 	
 	
 	def connectArduino(self):
@@ -57,8 +65,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			if self.arduinoSerial.read() == "1":
 				arduinoReady = True
 		
-		self.moveMotor("y","CCW","300")
-		movementDone = self.moveMotor("y","CW","300")
+		# CCW moves the carriage towards motors
+		self.moveMotor("y","CCW","800")
+		movementDone = self.moveMotor("y","CW","800")
 
 		
 		if movementDone:
@@ -126,6 +135,55 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if self.arduinoSerial.read() == "1":
 			self.arduinoSerial.close
 			return True
+			
+	def modeChanged(self):
+		self.operationStart.setEnabled(False)
+		self.xOperationChoice.setText("")
+		self.yOperationChoice.setText("")
+		
+		if self.manualModeRadio.isChecked():
+			self.xOperationLabel.setText("X Position (inches):")
+			self.yOperationLabel.setText("Y Position (inches):")
+		
+		if self.autoModeRadio.isChecked():
+			self.xOperationLabel.setText("Number of X Positions:")
+			self.yOperationLabel.setText("Number of Y Positions:")
+		
+		self.xOperationChoice.setEnabled(True)
+		self.yOperationChoice.setEnabled(True)
+		
+	def enableStart(self):
+		self.operationModeStatus.setText("Operation Not Setup")
+		self.operationStart.setEnabled(False)
+		
+		if self.manualModeRadio.isChecked() and \
+		self.xOperationChoice.displayText().\
+		replace('.','',1).isdigit()	and self.yOperationChoice.\
+		displayText().replace('.','',1).isdigit():
+				self.operationModeStatus.setText("Operation Set Up!")
+				self.operationStart.setEnabled(True)
+		
+		if self.autoModeRadio.isChecked() and \
+		self.xOperationChoice.displayText().isdigit() and \
+		self.yOperationChoice.displayText().isdigit():
+				self.operationModeStatus.setText("Operation Set Up!")
+				self.operationStart.setEnabled(True)
+				
+	def startAPS(self):
+		if self.APSsetupStatus.text().endswith("!") \
+		and self.dataPathStatus.text().endswith("!"):
+			return True ## put APS GO! code here
+		elif self.APSsetupStatus.text().endswith("!"):
+			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
+		elif self.dataPathStatus.text().endswith("!"):
+			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()))
+		else:
+			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()) + \
+			"\n" + str(self.dataPathStatus.text()))
+			
+				
+		
+		
 		
 		
 				

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1002</width>
+    <height>819</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,8 +23,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>451</width>
-      <height>111</height>
+      <width>471</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="title">
@@ -34,10 +34,16 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
-       <width>78</width>
-       <height>20</height>
+       <y>110</y>
+       <width>92</width>
+       <height>25</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="editable">
       <bool>false</bool>
@@ -50,8 +56,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>131</width>
+       <y>80</y>
+       <width>191</width>
        <height>21</height>
       </rect>
      </property>
@@ -65,10 +71,10 @@
     <widget class="QPushButton" name="findPlaneLimits">
      <property name="geometry">
       <rect>
-       <x>350</x>
-       <y>80</y>
-       <width>91</width>
-       <height>21</height>
+       <x>320</x>
+       <y>110</y>
+       <width>141</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -79,8 +85,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
-       <width>431</width>
+       <y>20</y>
+       <width>451</width>
        <height>51</height>
       </rect>
      </property>
@@ -100,10 +106,10 @@
    <widget class="QGroupBox" name="dataSavingSettingsGroup">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>500</x>
       <y>10</y>
-      <width>311</width>
-      <height>111</height>
+      <width>491</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="title">
@@ -113,9 +119,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
-       <width>211</width>
-       <height>20</height>
+       <y>109</y>
+       <width>351</width>
+       <height>31</height>
       </rect>
      </property>
     </widget>
@@ -123,8 +129,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
-       <width>141</width>
+       <y>80</y>
+       <width>211</width>
        <height>21</height>
       </rect>
      </property>
@@ -132,25 +138,12 @@
       <string>Data File Name and Location:</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="dataPathBrowse">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>80</y>
-       <width>75</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Browse...</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="dataPathStatus">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
-       <width>291</width>
+       <y>20</y>
+       <width>471</width>
        <height>51</height>
       </rect>
      </property>
@@ -166,6 +159,138 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QPushButton" name="dataPathBrowse">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>110</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Browse...</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="operationModeGroup">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>401</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Operation Mode</string>
+    </property>
+    <widget class="QRadioButton" name="manualModeRadio">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>90</y>
+       <width>131</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Manual Mode</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="autoModeRadio">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>90</y>
+       <width>151</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Automatic Mode</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="operationModeStatus">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>381</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>20</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Operation Not Set Up</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="xOperationLabel">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>130</y>
+       <width>171</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>X:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="yOperationLabel">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>170</y>
+       <width>171</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Y:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="xOperationChoice">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>130</y>
+       <width>113</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="yOperationChoice">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>170</y>
+       <width>113</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="operationStart">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>210</y>
+       <width>112</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -173,8 +298,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>21</height>
+     <width>1002</width>
+     <height>31</height>
     </rect>
    </property>
   </widget>
