@@ -66,8 +66,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		self.moveMotor("y","CCW","800")
-		movementDone = self.moveMotor("y","CW","800")
+		self.moveMotor("y","CCW","100")
+		movementDone = self.moveMotor("y","CW","100")
 
 		
 		if movementDone:

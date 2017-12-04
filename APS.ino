@@ -2,7 +2,7 @@
 const int stepPinY = 5;
 const int directionPinY = 6;
 const int enablePinY = 7;
-const int motorSpeed = 1000;
+const int motorSpeed = 7500;
 
 const int stepPinX = 10;
 const int directionPinX = 9;
