@@ -30,6 +30,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.arduinoSerial = None
 		self.comPort = None
 		self.dataFilePath = None
+		self.xRange = None
+		self.yRange = None
 		
 		# Populate the COM port list
 		self.comPortChoice.addItem("No Port Selected")
@@ -66,8 +68,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		self.moveMotor("y","CCW","100")
-		movementDone = self.moveMotor("y","CW","100")
+		#self.moveMotor("y","CCW","987", True)
+		movementDone = self.moveMotor("y","CW","1033", True)
 
 		
 		if movementDone:
@@ -107,22 +109,32 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.dataPathStatus.setText("Please Select a Valid File")
 			self.dataFilePath = None
 			
-	def moveMotor(self, motorAxis, direction, steps):
+	def moveMotor(self, motorAxis, direction, steps, calibrationFlag = None):
 		
 		directionPinX = "9"
 		directionPinY = "6"
-		stepPinX = "10"
+		directionPinAnemometer = "12"
+		stepPinX = "8"
 		stepPinY = "5"
+		setpPinAnemometer = "11"
 		
 		if motorAxis == "x":
 			directions = {"CW":[directionPinX, "1"],
 				"CCW": [directionPinX, "0"]}
-		else:
+		elif motorAxis == "y":
 			directions = {"CW":[directionPinY, "1"],
 				"CCW": [directionPinY, "0"]}
-		axes = {"x": stepPinX, "y": stepPinY}
+		else:
+			directions = {"CW":[directionPinAnemometer, "1"],
+				"CCW": [directionPinAnemometer, "0"]}
 		
-		self.arduinoSerial.write("0\n")
+		axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
+		
+		if calibrationFlag == None:
+			self.arduinoSerial.write("1\n")
+		else:
+			self.arduinoSerial.write("0\n")
+		
 		if self.arduinoSerial.read() == "1":
 			self.arduinoSerial.write(directions[direction][0]+"\n")	
 		if self.arduinoSerial.read() == "1":
@@ -132,9 +144,19 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if self.arduinoSerial.read() == "1":
 			self.arduinoSerial.write(axes[motorAxis]+"\n")
 		
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.close
-			return True
+		if calibrationFlag == None:
+			if self.arduinoSerial.read() == "1":
+				self.arduinoSerial.close
+				return True
+		else:
+			if motorAxis == "x":
+				if int(self.arduinoSerial.read()) > 1:
+					self.xRange = int(self.arduinoSerial.readline())
+					return True
+			else:
+				if int(self.arduinoSerial.read()) > 1:
+					self.yRange = int(self.arduinoSerial.readline())
+					return True
 			
 	def modeChanged(self):
 		self.operationStart.setEnabled(False)
