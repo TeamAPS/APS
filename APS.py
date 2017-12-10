@@ -68,7 +68,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		
 		# CCW moves the carriage towards motors
 		#self.moveMotor("y","CCW","987", True)
-		movementDone = self.moveMotor("y","CW","1600")
+		#movementDone = self.moveMotor("y","CW","1600")
 
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
