@@ -96,11 +96,11 @@ void loop()
        {
           if (directionPinRead == directionPinX)
         {
-          Serial.println(String(xStepCounter));
+          Serial.println(String(xStepCounter) + "\n");
         }
         else if (directionPinRead == directionPinY)
         {
-          Serial.println(String(yStepCounter));
+          Serial.println(String(yStepCounter) + "\n");
         }
        }
       else

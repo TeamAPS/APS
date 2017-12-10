@@ -3,7 +3,7 @@ import sys
 import serial
 from PyQt5 import QtWidgets, uic
 import serial.tools.list_ports
-import time
+import math
 
 # Create a list of the used serial ports
 
@@ -68,9 +68,13 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		self.moveMotor("x","CCW","1600")
-		movementDone = self.moveMotor("x","CW","1600")
-
+		#movementDone = self.moveMotor("x","CCW",toSteps(96), True)
+		self.moveMotor("x","CCW",1600)
+		self.moveMotor("y","CCW",1600)
+		self.moveMotor("a","CCW",1600)
+		self.moveMotor("x","CW",1600)
+		self.moveMotor("y","CW",1600)
+		movementDone = self.moveMotor("a","CW",1600)
 		
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
@@ -140,7 +144,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if self.arduinoSerial.read() == "1":
 			self.arduinoSerial.write(directions[direction][1]+"\n")
 		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(steps+"\n")
+			self.arduinoSerial.write(str(steps)+"\n")
 		if self.arduinoSerial.read() == "1":
 			self.arduinoSerial.write(axes[motorAxis]+"\n")
 		
@@ -194,7 +198,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	def startAPS(self):
 		if self.APSsetupStatus.text().endswith("!") \
 		and self.dataPathStatus.text().endswith("!"):
-			return True ## put APS GO! code here
+			return True ## put APS GO! code here insted of "return True"
 		elif self.APSsetupStatus.text().endswith("!"):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
 		elif self.dataPathStatus.text().endswith("!"):
@@ -203,13 +207,22 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()) + \
 			"\n" + str(self.dataPathStatus.text()))
 			
-				
+	def toInches(self, steps):
+		pulleyDiameter = 0.955 # Inches
+		stepsPerRevolution = 1600.0 # Set by the motor drivers 
+		revolution = math.pi * pulleyDiameter
+		conversionFactor = stepsPerRevolution / revolution
+		inInches = (1.0  /conversionFactor) * steps
+		return inInches
 		
+	def toSteps(self, inches):
+		pulleyDiameter = 0.955 # Inches
+		stepsPerRevolution = 1600.0 # Set by the motor drivers 
+		revolution = math.pi * pulleyDiameter
+		conversionFactor = stepsPerRevolution / revolution
+		inSteps = conversionFactor * inches
+		return int(inSteps)
 		
-		
-		
-				
-	
 		
 
 def main():
