@@ -68,8 +68,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		#self.moveMotor("y","CCW","987", True)
-		movementDone = self.moveMotor("y","CW","1033", True)
+		self.moveMotor("x","CCW","1600")
+		movementDone = self.moveMotor("x","CW","1600")
 
 		
 		if movementDone:
@@ -116,7 +116,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		directionPinAnemometer = "12"
 		stepPinX = "8"
 		stepPinY = "5"
-		setpPinAnemometer = "11"
+		stepPinAnemometer = "11"
 		
 		if motorAxis == "x":
 			directions = {"CW":[directionPinX, "1"],

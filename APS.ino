@@ -21,8 +21,7 @@ int directionPinRead, directionHighOrLow,
 
 // Setup code; runs once
 void setup()
-{
-  
+{  
   // Open serial connection.
   Serial.begin(9600);
 
