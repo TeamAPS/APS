@@ -68,13 +68,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		#movementDone = self.moveMotor("x","CCW",toSteps(96), True)
-		self.moveMotor("x","CCW",1600)
-		self.moveMotor("y","CCW",1600)
-		self.moveMotor("a","CCW",1600)
-		self.moveMotor("x","CW",1600)
-		self.moveMotor("y","CW",1600)
-		movementDone = self.moveMotor("a","CW",1600)
+		self.moveMotor("y","CCW", self.toSteps(100), True)
+		movementDone = self.moveMotor("x","CW", 1600)
+		#movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
 		
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
@@ -140,27 +136,23 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.arduinoSerial.write("0\n")
 		
 		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(directions[direction][0]+"\n")	
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(directions[direction][1]+"\n")
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(str(steps)+"\n")
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(axes[motorAxis]+"\n")
-		
+			self.arduinoSerial.write(directions[direction][0]+ " " + \
+			directions[direction][1] + " " + str(steps) + " " + \
+			axes[motorAxis] + "\n")	
+
 		if calibrationFlag == None:
 			if self.arduinoSerial.read() == "1":
 				self.arduinoSerial.close
 				return True
 		else:
+			numberOfSteps = self.arduinoSerial.readline()
+			
 			if motorAxis == "x":
-				if int(self.arduinoSerial.read()) > 1:
-					self.xRange = int(self.arduinoSerial.readline())
+					self.xRange = numberOfSteps
 					return True
 			else:
-				if int(self.arduinoSerial.read()) > 1:
-					self.yRange = int(self.arduinoSerial.readline())
-					return True
+				self.yRange = numberOfSteps
+				return True
 			
 	def modeChanged(self):
 		self.operationStart.setEnabled(False)
@@ -221,7 +213,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		revolution = math.pi * pulleyDiameter
 		conversionFactor = stepsPerRevolution / revolution
 		inSteps = conversionFactor * inches
-		return int(inSteps)
+		return math.floor(inSteps)
 		
 		
 
