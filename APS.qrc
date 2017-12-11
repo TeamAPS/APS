@@ -1,5 +1,5 @@
 <RCC>
-  <qresource prefix="APStopView">
-    <file>APStopView.jpg</file>
+  <qresource prefix="APS">
+    <file>APS_labeled_resized.png</file>
   </qresource>
 </RCC>

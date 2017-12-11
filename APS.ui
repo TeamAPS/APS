@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1002</width>
-    <height>819</height>
+    <width>1145</width>
+    <height>826</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,9 +23,15 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>471</width>
+      <width>571</width>
       <height>151</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="title">
      <string>APS Setup</string>
@@ -35,7 +41,7 @@
       <rect>
        <x>10</x>
        <y>110</y>
-       <width>92</width>
+       <width>106</width>
        <height>25</height>
       </rect>
      </property>
@@ -57,7 +63,7 @@
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>191</width>
+       <width>221</width>
        <height>21</height>
       </rect>
      </property>
@@ -71,9 +77,9 @@
     <widget class="QPushButton" name="findPlaneLimits">
      <property name="geometry">
       <rect>
-       <x>320</x>
+       <x>410</x>
        <y>110</y>
-       <width>141</width>
+       <width>151</width>
        <height>31</height>
       </rect>
      </property>
@@ -86,7 +92,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>451</width>
+       <width>551</width>
        <height>51</height>
       </rect>
      </property>
@@ -106,11 +112,17 @@
    <widget class="QGroupBox" name="dataSavingSettingsGroup">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>600</x>
       <y>10</y>
-      <width>491</width>
+      <width>531</width>
       <height>151</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="title">
      <string>Data Saving Settings</string>
@@ -120,7 +132,7 @@
       <rect>
        <x>10</x>
        <y>109</y>
-       <width>351</width>
+       <width>381</width>
        <height>31</height>
       </rect>
      </property>
@@ -130,7 +142,7 @@
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>211</width>
+       <width>251</width>
        <height>21</height>
       </rect>
      </property>
@@ -143,7 +155,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>471</width>
+       <width>511</width>
        <height>51</height>
       </rect>
      </property>
@@ -162,7 +174,7 @@
     <widget class="QPushButton" name="dataPathBrowse">
      <property name="geometry">
       <rect>
-       <x>370</x>
+       <x>400</x>
        <y>110</y>
        <width>111</width>
        <height>31</height>
@@ -178,9 +190,15 @@
      <rect>
       <x>10</x>
       <y>170</y>
-      <width>401</width>
-      <height>251</height>
+      <width>451</width>
+      <height>311</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="title">
      <string>Operation Mode</string>
@@ -188,9 +206,9 @@
     <widget class="QRadioButton" name="manualModeRadio">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>40</x>
        <y>90</y>
-       <width>131</width>
+       <width>151</width>
        <height>23</height>
       </rect>
      </property>
@@ -201,9 +219,9 @@
     <widget class="QRadioButton" name="autoModeRadio">
      <property name="geometry">
       <rect>
-       <x>200</x>
+       <x>240</x>
        <y>90</y>
-       <width>151</width>
+       <width>171</width>
        <height>23</height>
       </rect>
      </property>
@@ -216,7 +234,7 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>381</width>
+       <width>431</width>
        <height>51</height>
       </rect>
      </property>
@@ -235,10 +253,10 @@
     <widget class="QLabel" name="xOperationLabel">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>20</x>
        <y>130</y>
-       <width>171</width>
-       <height>21</height>
+       <width>301</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -248,10 +266,10 @@
     <widget class="QLabel" name="yOperationLabel">
      <property name="geometry">
       <rect>
-       <x>50</x>
+       <x>20</x>
        <y>170</y>
-       <width>171</width>
-       <height>21</height>
+       <width>301</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="text">
@@ -261,7 +279,7 @@
     <widget class="QLineEdit" name="xOperationChoice">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>320</x>
        <y>130</y>
        <width>113</width>
        <height>31</height>
@@ -271,7 +289,7 @@
     <widget class="QLineEdit" name="yOperationChoice">
      <property name="geometry">
       <rect>
-       <x>230</x>
+       <x>320</x>
        <y>170</y>
        <width>113</width>
        <height>31</height>
@@ -281,8 +299,8 @@
     <widget class="QPushButton" name="operationStart">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>210</y>
+       <x>170</x>
+       <y>260</y>
        <width>112</width>
        <height>34</height>
       </rect>
@@ -291,6 +309,161 @@
       <string>Start</string>
      </property>
     </widget>
+    <widget class="QLineEdit" name="timeOperationChoice">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>210</y>
+       <width>113</width>
+       <height>31</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="timeOperationLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>210</y>
+       <width>301</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Time:</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="maximumXlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>500</y>
+      <width>461</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Maximum X: Not Defined</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="maximumYlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>550</y>
+      <width>461</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Maximum Y: Not Defined</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="currentXlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>600</y>
+      <width>461</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Current X: Unknown</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="currentYlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>650</y>
+      <width>461</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Current Y: Unknown</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="APSlabeledPicture">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>170</y>
+      <width>611</width>
+      <height>551</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;img src=&quot;APS_labeled_resized.png&quot;/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="ySlider">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>180</y>
+      <width>31</width>
+      <height>531</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="xSlider">
+    <property name="geometry">
+     <rect>
+      <x>560</x>
+      <y>720</y>
+      <width>531</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="emergencyStopButton">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>710</y>
+      <width>151</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>STOP APS</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -298,12 +471,30 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1002</width>
+     <width>1145</width>
      <height>31</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="userManualOption"/>
+    <addaction name="aboutOption"/>
+   </widget>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="userManualOption">
+   <property name="text">
+    <string>User Manual</string>
+   </property>
+  </action>
+  <action name="aboutOption">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="APS.qrc"/>

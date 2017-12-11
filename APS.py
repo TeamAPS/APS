@@ -3,7 +3,7 @@ import sys
 import serial
 from PyQt5 import QtWidgets, uic
 import serial.tools.list_ports
-import time
+import math
 
 # Create a list of the used serial ports
 
@@ -26,6 +26,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.findPlaneLimits.setEnabled(False)
 		self.xOperationChoice.setEnabled(False)
 		self.yOperationChoice.setEnabled(False)
+		self.timeOperationChoice.setEnabled(False)
 		self.operationStart.setEnabled(False)
 		self.arduinoSerial = None
 		self.comPort = None
@@ -47,6 +48,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.autoModeRadio.clicked.connect(self.modeChanged)
 		self.xOperationChoice.textChanged.connect(self.enableStart)
 		self.yOperationChoice.textChanged.connect(self.enableStart)
+		self.timeOperationChoice.textChanged.connect(self.enableStart)
 		self.operationStart.clicked.connect(self.startAPS)
 		
 	def connectArduino(self):
@@ -67,9 +69,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
-		#self.moveMotor("y","CCW","987", True)
-		movementDone = self.moveMotor("y","CW","1600")
 
+		self.moveMotor("y","CCW", self.toSteps(100), True)
+		self.moveMotor("y","CW", self.toSteps(3))
+		movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
+    
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
 			self.APSsetupStatus.setText("APS Setup Completed!")
@@ -134,58 +138,60 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.arduinoSerial.write("0\n")
 		
 		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(directions[direction][0]+"\n")	
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(directions[direction][1]+"\n")
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(steps+"\n")
-		if self.arduinoSerial.read() == "1":
-			self.arduinoSerial.write(axes[motorAxis]+"\n")
-		
+			self.arduinoSerial.write(directions[direction][0]+ " " + \
+			directions[direction][1] + " " + str(steps) + " " + \
+			axes[motorAxis] + "\n")	
+
 		if calibrationFlag == None:
 			if self.arduinoSerial.read() == "1":
 				self.arduinoSerial.close
 				return True
 		else:
+			numberOfSteps = float(self.arduinoSerial.readline())
+			
 			if motorAxis == "x":
-				if int(self.arduinoSerial.read()) > 1:
-					self.xRange = int(self.arduinoSerial.readline())
+					self.xRange = numberOfSteps
 					return True
 			else:
-				if int(self.arduinoSerial.read()) > 1:
-					self.yRange = int(self.arduinoSerial.readline())
-					return True
+				self.yRange = numberOfSteps
+				return True
 			
 	def modeChanged(self):
 		self.operationStart.setEnabled(False)
 		self.xOperationChoice.setText("")
 		self.yOperationChoice.setText("")
+		self.timeOperationChoice.setText("")
 		
 		if self.manualModeRadio.isChecked():
-			self.xOperationLabel.setText("X Position (inches):")
-			self.yOperationLabel.setText("Y Position (inches):")
+			self.xOperationLabel.setText("X Position (in.):")
+			self.yOperationLabel.setText("Y Position (in.):")
+			self.timeOperationLabel.setText("Measurement Time (sec.):")
 		
 		if self.autoModeRadio.isChecked():
 			self.xOperationLabel.setText("Number of X Positions:")
 			self.yOperationLabel.setText("Number of Y Positions:")
+			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
 		
 		self.xOperationChoice.setEnabled(True)
 		self.yOperationChoice.setEnabled(True)
+		self.timeOperationChoice.setEnabled(True)
 		
 	def enableStart(self):
-		self.operationModeStatus.setText("Operation Not Setup")
+		self.operationModeStatus.setText("Operation Not Set Up")
 		self.operationStart.setEnabled(False)
 		
 		if self.manualModeRadio.isChecked() and \
 		self.xOperationChoice.displayText().\
 		replace('.','',1).isdigit()	and self.yOperationChoice.\
-		displayText().replace('.','',1).isdigit():
+		displayText().replace('.','',1).isdigit() and \
+		self.timeOperationChoice.displayText().replace('.','',1).isdigit():
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 		
 		if self.autoModeRadio.isChecked() and \
 		self.xOperationChoice.displayText().isdigit() and \
-		self.yOperationChoice.displayText().isdigit():
+		self.yOperationChoice.displayText().isdigit() and \
+		self.timeOperationChoice.displayText().replace('.','',1).isdigit():
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 				
@@ -193,6 +199,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if self.APSsetupStatus.text().endswith("!") \
 		and self.dataPathStatus.text().endswith("!"):
 			return True ## put APS GO! code here instead of "return True"
+
 		elif self.APSsetupStatus.text().endswith("!"):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
 		elif self.dataPathStatus.text().endswith("!"):
@@ -201,13 +208,22 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()) + \
 			"\n" + str(self.dataPathStatus.text()))
 			
-				
+	def toInches(self, steps):
+		pulleyDiameter = 0.955 # Inches
+		stepsPerRevolution = 1600.0 # Set by the motor drivers 
+		revolution = math.pi * pulleyDiameter
+		conversionFactor = stepsPerRevolution / revolution
+		inInches = (1.0  /conversionFactor) * steps
+		return inInches
 		
+	def toSteps(self, inches):
+		pulleyDiameter = 0.955 # Inches
+		stepsPerRevolution = 1600.0 # Set by the motor drivers 
+		revolution = math.pi * pulleyDiameter
+		conversionFactor = stepsPerRevolution / revolution
+		inSteps = conversionFactor * inches
+		return math.floor(inSteps)
 		
-		
-		
-				
-	
 		
 
 def main():
