@@ -26,6 +26,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.findPlaneLimits.setEnabled(False)
 		self.xOperationChoice.setEnabled(False)
 		self.yOperationChoice.setEnabled(False)
+		self.timeOperationChoice.setEnabled(False)
 		self.operationStart.setEnabled(False)
 		self.arduinoSerial = None
 		self.comPort = None
@@ -47,6 +48,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.autoModeRadio.clicked.connect(self.modeChanged)
 		self.xOperationChoice.textChanged.connect(self.enableStart)
 		self.yOperationChoice.textChanged.connect(self.enableStart)
+		self.timeOperationChoice.textChanged.connect(self.enableStart)
 		self.operationStart.clicked.connect(self.startAPS)
 	
 	
@@ -69,8 +71,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		
 		# CCW moves the carriage towards motors
 		self.moveMotor("y","CCW", self.toSteps(100), True)
-		movementDone = self.moveMotor("x","CW", 1600)
-		#movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
+		self.moveMotor("y","CW", self.toSteps(3))
+		movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
+		
 		
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
@@ -145,7 +148,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				self.arduinoSerial.close
 				return True
 		else:
-			numberOfSteps = self.arduinoSerial.readline()
+			numberOfSteps = float(self.arduinoSerial.readline())
 			
 			if motorAxis == "x":
 					self.xRange = numberOfSteps
@@ -158,32 +161,38 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.operationStart.setEnabled(False)
 		self.xOperationChoice.setText("")
 		self.yOperationChoice.setText("")
+		self.timeOperationChoice.setText("")
 		
 		if self.manualModeRadio.isChecked():
-			self.xOperationLabel.setText("X Position (inches):")
-			self.yOperationLabel.setText("Y Position (inches):")
+			self.xOperationLabel.setText("X Position (in.):")
+			self.yOperationLabel.setText("Y Position (in.):")
+			self.timeOperationLabel.setText("Measurement Time (sec.):")
 		
 		if self.autoModeRadio.isChecked():
 			self.xOperationLabel.setText("Number of X Positions:")
 			self.yOperationLabel.setText("Number of Y Positions:")
+			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
 		
 		self.xOperationChoice.setEnabled(True)
 		self.yOperationChoice.setEnabled(True)
+		self.timeOperationChoice.setEnabled(True)
 		
 	def enableStart(self):
-		self.operationModeStatus.setText("Operation Not Setup")
+		self.operationModeStatus.setText("Operation Not Set Up")
 		self.operationStart.setEnabled(False)
 		
 		if self.manualModeRadio.isChecked() and \
 		self.xOperationChoice.displayText().\
 		replace('.','',1).isdigit()	and self.yOperationChoice.\
-		displayText().replace('.','',1).isdigit():
+		displayText().replace('.','',1).isdigit() and \
+		self.timeOperationChoice.displayText().replace('.','',1).isdigit():
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 		
 		if self.autoModeRadio.isChecked() and \
 		self.xOperationChoice.displayText().isdigit() and \
-		self.yOperationChoice.displayText().isdigit():
+		self.yOperationChoice.displayText().isdigit() and \
+		self.timeOperationChoice.displayText().replace('.','',1).isdigit():
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 				

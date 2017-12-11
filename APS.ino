@@ -67,7 +67,7 @@ void setPins()
   incomingDirections = Serial.readStringUntil("\n");
   directionPinRead = getValue(incomingDirections, ' ', 0).toInt();
   directionHighOrLow = getValue(incomingDirections, ' ', 1).toInt();
-  numberOfSteps = getValue(incomingDirections, ' ', 2).toInt();
+  numberOfSteps = getValue(incomingDirections, ' ', 2).toFloat();
   stepPinRead = getValue(incomingDirections, ' ', 3).toInt();
 
   digitalWrite(directionPinRead, directionHighOrLow); // Direction low: 
@@ -115,13 +115,13 @@ void loop()
       {
         if(directionPinRead == directionPinX)
         {
-          Serial.println(String(xStepCounter) + "\n");
-          break;
+          Serial.println(String(xStepCounter));
+          i = numberOfSteps + 1.0;
         }
         else
         {
-          Serial.println(String(yStepCounter) + "\n");
-          break;
+          Serial.println(String(yStepCounter));
+          i = numberOfSteps + 1.0;
         }
       }
       else
