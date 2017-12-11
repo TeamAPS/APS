@@ -17,7 +17,7 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 # GUI class 
 class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	
-	# Class intialization
+	# Class initialization
 	def __init__(self):
 		QtWidgets.QMainWindow.__init__(self)
 		Ui_MainWindow.__init__(self)
@@ -50,8 +50,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yOperationChoice.textChanged.connect(self.enableStart)
 		self.timeOperationChoice.textChanged.connect(self.enableStart)
 		self.operationStart.clicked.connect(self.startAPS)
-	
-	
+		
 	def connectArduino(self):
 		# The first space is where the port name ends
 		comPort = self.comPortChoice.currentText().partition(" ")[0]
@@ -62,7 +61,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.findPlaneLimits.setEnabled(False)
 	
 	def getLimits(self):
-		# Baud rate is 9600	
+		# Baud rate is 9600
 		self.arduinoSerial = serial.Serial(self.comPort, 9600)
 		arduinoReady = False
 		while not arduinoReady:
@@ -70,11 +69,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				arduinoReady = True
 		
 		# CCW moves the carriage towards motors
+
 		self.moveMotor("y","CCW", self.toSteps(100), True)
 		self.moveMotor("y","CW", self.toSteps(3))
 		movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
-		
-		
+    
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
 			self.APSsetupStatus.setText("APS Setup Completed!")
@@ -199,7 +198,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	def startAPS(self):
 		if self.APSsetupStatus.text().endswith("!") \
 		and self.dataPathStatus.text().endswith("!"):
-			return True ## put APS GO! code here insted of "return True"
+			return True ## put APS GO! code here instead of "return True"
+
 		elif self.APSsetupStatus.text().endswith("!"):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
 		elif self.dataPathStatus.text().endswith("!"):
