@@ -29,10 +29,12 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.timeOperationChoice.setEnabled(False)
 		self.operationStart.setEnabled(False)
 		self.arduinoSerial = None
-		self.comPort = None
 		self.dataFilePath = None
-		self.xRange = None
-		self.yRange = None
+		self.xRange = None # steps
+		self.yRange = None # steps
+		self.currentX = None # steps
+		self.currentY = None # steps
+		self.anemometerExtension = 20.0 # inches. Must be fixed by user
 		
 		# Populate the COM port list
 		self.comPortChoice.addItem("No Port Selected")
@@ -55,29 +57,71 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		# The first space is where the port name ends
 		comPort = self.comPortChoice.currentText().partition(" ")[0]
 		if comPort.startswith("COM"):
-			self.comPort = comPort
+			# Baud rate is 9600
+			self.arduinoSerial = serial.Serial(comPort, 9600)
+			arduinoReady = False
+			while not arduinoReady:
+				if self.arduinoSerial.read() == "1":
+					arduinoReady = True
 			self.findPlaneLimits.setEnabled(True)
 		else:
+			arduinoSerial = None
 			self.findPlaneLimits.setEnabled(False)
 	
 	def getLimits(self):
-		# Baud rate is 9600
-		self.arduinoSerial = serial.Serial(self.comPort, 9600)
-		arduinoReady = False
-		while not arduinoReady:
-			if self.arduinoSerial.read() == "1":
-				arduinoReady = True
-		
-		# CCW moves the carriage towards motors
+		# For y: CCW moves the carriage towards motors
+		# For x: CW moves the carriage towards motor
 
+		# Calibrate Y
+		# Go all the way to the bottom
+		# Move 100 inches to ensure hitting the switch
 		self.moveMotor("y","CCW", self.toSteps(100), True)
-		self.moveMotor("y","CW", self.toSteps(3))
-		movementDone = self.moveMotor("x","CW", self.toSteps(100), True)
+		
+		# Go 100 steps up to clear the switch
+		self.moveMotor("y","CW", 100.0)
+		
+		# Go all the way to the top
+		# Move 100 inches to ensure hitting the switch
+		self.moveMotor("y","CW", self.toSteps(100), True)
+		
+		# Go 100 steps down to clear the switch
+		self.moveMotor("y","CCW", 100.0)
+		
+		# Calibrate X
+		# Go all the way to the right
+		# Move 100 inches to ensure hitting the switch
+		self.moveMotor("x","CW", self.toSteps(100), True)
+		
+		# Go 100 steps to the left to clear the switch
+		self.moveMotor("x","CCW", 100.0)
+		
+		# Go all the way to the left
+		# Move 100 inches to ensure hitting the switch
+		movementDone = self.moveMotor("x","CCW", self.toSteps(100), True)
+		
+		# Go 100 steps to the right to clear the switch
+		self.moveMotor("x","CW", 100.0)
+		
+		# Set where the anemometer currently is
+		self.currentX = self.xRange
+		self.currentY = self.yRange
+		
+		# Don't forget to add the 100 steps to the current ranges
+		self.xRange = self.xRange + 100.0
+		self.yRange = self.yRange + 100.0 
     
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
 			self.APSsetupStatus.setText("APS Setup Completed!")
 			self.comPortChoice.setEnabled(False)
+			self.maximumXlabel.setText("Maximum X:" + str(round(self.toInches(self.xRange), 3) \
+			+ self.anemometerExtension) + "in.")
+			self.maximumYlabel.setText("Maximum Y:" + str(round(self.toInches(self.yRange), 3) \
+			+ self.anemometerExtension) + "in.")
+			self.currentXlabel.setText("Current X:" + str(round(self.toInches(self.currentX), \
+			3)) + "in.")
+			self.currentYlabel.setText("Current Y:" + str(round(self.toInches(self.currentY), \
+			3)) + "in.")
 		
 	def selectDataPath(self):
 		# The first item in the tuple is the file path needed
@@ -198,7 +242,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	def startAPS(self):
 		if self.APSsetupStatus.text().endswith("!") \
 		and self.dataPathStatus.text().endswith("!"):
-			return True ## put APS GO! code here instead of "return True"
+			if self.manualModeRadio.isChecked():
+				return True # put APS go! manual code here
+			else:
+				return True # call self.calculateDataPoints here
 
 		elif self.APSsetupStatus.text().endswith("!"):
 			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
