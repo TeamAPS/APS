@@ -30,8 +30,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.operationStart.setEnabled(False)
 		self.ySlider.setEnabled(False)
 		self.xSlider.setEnabled(False)
-		self.manualModeRadio.setEnabled(True)
-		self.autoModeRadio.setEnabled(True)
+		self.manualModeRadio.setEnabled(False)
+		self.autoModeRadio.setEnabled(False)
 		self.arduinoSerial = None
 		self.dataFilePath = None
 		self.xRange = None # steps
@@ -248,10 +248,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.xOperationLabel.setText("Number of X Positions:")
 			self.yOperationLabel.setText("Number of Y Positions:")
 			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
+			self.xOperationChoice.setText(" ") #remove after design show
 			self.xOperationChoice.setEnabled(False) #remove after design show
 			self.yOperationChoice.setEnabled(False) #remove after design show
 			self.timeOperationChoice.setEnabled(False) #remove after design show
-			self.xOperationChoice.setText(" ") #remove after design show
 		
 		# Commented out for design show
 		#self.xOperationChoice.setEnabled(True)
