@@ -30,8 +30,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.operationStart.setEnabled(False)
 		self.ySlider.setEnabled(False)
 		self.xSlider.setEnabled(False)
-		self.manualModeRadio.setEnabled(False)
-		self.autoModeRadio.setEnabled(False)
+		self.manualModeRadio.setEnabled(True)
+		self.autoModeRadio.setEnabled(True)
 		self.arduinoSerial = None
 		self.dataFilePath = None
 		self.xRange = None # steps
@@ -196,7 +196,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		else:
 			directions = {"CW":[directionPinAnemometer, "0"],
 				"CCW": [directionPinAnemometer, "1"]}
-		
+
 		axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
 		if calibrationFlag == None:
 			self.arduinoSerial.write("1\n")
@@ -223,7 +223,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				return True
 			
 	def modeChanged(self):
-		self.operationStart.setEnabled(False)
+		self.operationStart.setEnabled(True)
 		self.xSlider.setEnabled(False)
 		self.ySlider.setEnabled(False)
 		self.xSlider.setValue(0)
@@ -233,6 +233,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.timeOperationChoice.setText("")
 		
 		if self.manualModeRadio.isChecked():
+			self.operationStart.setEnabled(False)
 			self.xOperationLabel.setText("X Position (in.):")
 			self.yOperationLabel.setText("Y Position (in.):")
 			self.timeOperationLabel.setText("Measurement Time (sec.):")
@@ -272,8 +273,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		#self.xOperationChoice.displayText().isdigit() and \
 		#self.yOperationChoice.displayText().isdigit() and \
 		#self.timeOperationChoice.displayText().replace('.','',1).isdigit():
-				self.operationModeStatus.setText("Operation Set Up!")
-				self.operationStart.setEnabled(True)
+			self.operationModeStatus.setText("Operation Set Up!")
+			self.operationStart.setEnabled(True)
 				
 	def startAPS(self):
 		if self.APSsetupStatus.text().endswith("!"):
@@ -286,7 +287,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 					return False
 			else:
 
-				ensureMsg = "Are you sure you want enter Auto Mode?"
+				ensureMsg = "Are you sure you want enter Auto Mode? Is the anemometer in the down position?"
 				reply = QtWidgets.QMessageBox.question(self, 'Auto Mode', \
 				ensureMsg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
 				if reply != QtWidgets.QMessageBox.Yes:
@@ -363,10 +364,42 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
       
 	def autoMove(self):
 		# Move to top left corner
-		print(self.moveMotor("y", self.yUp, self.toSteps(100),"2"))
-		print(self.moveMotor("y", self.yDown, self.toSteps(1)))
-		print(self.moveMotor("x", self.xLeft, self.toSteps(100),"2"))
-		print(self.moveMotor("a", "CW", 540))
+		self.moveMotor("y", self.yUp, self.toSteps(100),"2")
+		self.moveMotor("y", self.yDown, self.toSteps(0.25))
+		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
+		self.moveMotor("a", "CW", 533)
+		
+		#Moving along top
+		self.moveMotor("x", self.xRight, self.toSteps(100),"2")
+		self.moveMotor("x", self.xLeft, self.toSteps(1))
+		self.moveMotor("a", "CCW", 1066)
+		
+		#Moving along top
+		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
+		
+		#Moving down
+		self.moveMotor("a", "CW", 1066)
+		self.moveMotor("y", self.yDown, self.toSteps(100),"2")
+		self.moveMotor("y", self.yUp, self.toSteps(0.25))
+		self.moveMotor("a", "CCW", 378)
+		
+		# Moving along bottom
+		self.moveMotor("x", self.xRight, self.toSteps(100),"2")
+		self.moveMotor("x", self.xLeft, self.toSteps(1))
+		self.moveMotor("a", "CCW", 310)
+		
+		#Moving along top
+		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
+		self.moveMotor("a", "CW", 155)
+		
+		#Return to (0,0)
+		self.moveMotor("y", self.yDown, self.toSteps(100),"2")
+		self.moveMotor("y", self.yUp, self.toSteps(0.25))
+		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
 		
 
 def main():
