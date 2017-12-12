@@ -24,9 +24,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.setupUi(self)
 		self.dataPathBox.setText("No File Selected")
 		self.findPlaneLimits.setEnabled(False)
-		self.xOperationChoice.setEnabled(True)
-		self.yOperationChoice.setEnabled(True)
-		self.timeOperationChoice.setEnabled(True)
+		self.xOperationChoice.setEnabled(False)
+		self.yOperationChoice.setEnabled(False)
+		self.timeOperationChoice.setEnabled(False)
 		self.operationStart.setEnabled(False)
 		self.ySlider.setEnabled(False)
 		self.xSlider.setEnabled(False)
@@ -223,7 +223,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				return True
 			
 	def modeChanged(self):
-		self.operationStart.setEnabled(False)
+		self.operationStart.setEnabled(True)
 		self.xSlider.setEnabled(False)
 		self.ySlider.setEnabled(False)
 		self.xSlider.setValue(0)
@@ -233,6 +233,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.timeOperationChoice.setText("")
 		
 		if self.manualModeRadio.isChecked():
+			self.operationStart.setEnabled(False)
 			self.xOperationLabel.setText("X Position (in.):")
 			self.yOperationLabel.setText("Y Position (in.):")
 			self.timeOperationLabel.setText("Measurement Time (sec.):")
@@ -272,8 +273,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		#self.xOperationChoice.displayText().isdigit() and \
 		#self.yOperationChoice.displayText().isdigit() and \
 		#self.timeOperationChoice.displayText().replace('.','',1).isdigit():
-				self.operationModeStatus.setText("Operation Set Up!")
-				self.operationStart.setEnabled(True)
+			self.operationModeStatus.setText("Operation Set Up!")
+			self.operationStart.setEnabled(True)
 				
 	def startAPS(self):
 		if self.APSsetupStatus.text().endswith("!"):
