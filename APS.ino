@@ -7,7 +7,7 @@ const int stepPinAnemometer = 11;
 const int directionPinAnemometer = 12;
 const int motorSpeedX = 500;
 const int motorSpeedY = 500;
-const int motorSpeedAnemometer = 750;
+const int motorSpeedAnemometer = 1000;
 
 // Define switch variables
 const int motorSwitchX = 4;
