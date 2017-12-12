@@ -38,7 +38,17 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yRange = None # steps
 		self.currentX = None # steps
 		self.currentY = None # steps
-		self.anemometerExtension = 20.0 # inches. Must be fixed by user
+		self.APSsetupStatus.setText("APS Setup Completed!")
+		
+		# Must be fixed by user - Distance from tip to motor axis
+		self.anemometerExtension = 10.25 # inches. 
+		self.topAngleRot = math.radians(120) # Angles to reach top corners
+		self.botAngleRot = math.radians(35) # Angles to reach bottom corners
+		self.yUp = "CW"
+		self.yDown = "CCW"
+		self.xLeft = "CCW"
+		self.xRight = "CW"
+		
 		
 		# Populate the COM port list
 		self.comPortChoice.addItem("No Port Selected")
@@ -188,10 +198,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			directions = {"CW":[directionPinAnemometer, "0"],
 				"CCW": [directionPinAnemometer, "1"]}
 		
-		axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
-		
+    axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
 		if calibrationFlag == None:
 			self.arduinoSerial.write("1\n")
+		elif calibrationFlag == '2':
+			self.arduinoSerial.write("2\n")
 		else:
 			self.arduinoSerial.write("0\n")
 		
@@ -199,10 +210,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.arduinoSerial.write(directions[direction][0]+ " " + \
 			directions[direction][1] + " " + str(steps) + " " + \
 			axes[motorAxis] + "\n")	
-
-		if calibrationFlag == None:
+		if calibrationFlag == None or calibrationFlag == "2":
 			if self.arduinoSerial.read() == "1":
-				self.arduinoSerial.close
 				return True
 		else:
 			numberOfSteps = float(self.arduinoSerial.readline())
@@ -231,15 +240,20 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.xSlider.setEnabled(True)
 			self.ySlider.setEnabled(True)
 		
-		if self.autoModeRadio.isChecked():
-			self.xOperationLabel.setText("Number of X Positions:")
-			self.yOperationLabel.setText("Number of Y Positions:")
-			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
+			if self.manualModeRadio.isChecked():
+				self.xOperationLabel.setText("X Position (in.):")
+				self.yOperationLabel.setText("Y Position (in.):")
+				self.timeOperationLabel.setText("Measurement Time (sec.):")
 		
-		self.xOperationChoice.setEnabled(True)
-		self.yOperationChoice.setEnabled(True)
-		self.timeOperationChoice.setEnabled(True)
-		
+			if self.autoModeRadio.isChecked():
+				self.xOperationLabel.setText("Number of X Positions:")
+				self.yOperationLabel.setText("Number of Y Positions:")
+				self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
+					
+			self.xOperationChoice.setEnabled(True)
+			self.yOperationChoice.setEnabled(True)
+			self.timeOperationChoice.setEnabled(True)
+			
 	def enableStart(self):
 		self.operationModeStatus.setText("Operation Not Set Up")
 		self.operationStart.setEnabled(False)
@@ -260,15 +274,34 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				self.operationStart.setEnabled(True)
 				
 	def startAPS(self):
-		if self.APSsetupStatus.text().endswith("!") \
-		and self.dataPathStatus.text().endswith("!"):
+		if self.APSsetupStatus.text().endswith("!"):
+		#and self.dataPathStatus.text().endswith("!"):
 			if self.manualModeRadio.isChecked():
-				return True # put APS go! manual code here
+				ensureMsg = "Are you sure you want enter Manual Mode?"
+				reply = QtWidgets.QMessageBox.question(self, 'Manual Mode', \
+				ensureMsg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+				if reply != QtWidgets.QMessageBox.Yes:
+					return False
 			else:
-				return True # call self.calculateDataPoints here
+
+				ensureMsg = "Are you sure you want enter Auto Mode?"
+				reply = QtWidgets.QMessageBox.question(self, 'Auto Mode', \
+				ensureMsg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+				if reply != QtWidgets.QMessageBox.Yes:
+					return False
+				else:
+					try:
+						self.autoMove()
+					except Exception as e:
+						print(e)
 		else:
-			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
-			self.dataPathStatus.text()))
+		#elif self.APSsetupStatus.text().endswith("!"):
+			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()))
+		#elif self.dataPathStatus.text().endswith("!"):
+			#QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()))
+		#else:
+			#QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()) + \
+			#"\n" + str(self.dataPathStatus.text()))
 			
 	def toInches(self, steps):
 		pulleyDiameter = 0.955 # Inches
@@ -286,6 +319,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		inSteps = conversionFactor * inches
 		return math.floor(inSteps)
 		
+
 	def aboutPopup(self):
 		QtWidgets.QMessageBox.about(self, "About APS", "Anemometer "
 		"Positioning Device (APS)\n\nDesigned and programmed by Team"
@@ -318,8 +352,13 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		else:
 			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
 			self.APSsetupStatus.text()))
-		
-		
+      
+	def autoMove(self):
+		# Move to top left corner
+		print(self.moveMotor("y", self.yUp, self.toSteps(100),"2"))
+		print(self.moveMotor("y", self.yDown, self.toSteps(1)))
+		print(self.moveMotor("x", self.xLeft, self.toSteps(100),"2"))
+		print(self.moveMotor("a", "CW", 540))
 		
 
 def main():
