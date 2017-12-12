@@ -5,9 +5,9 @@ const int stepPinX = 8;
 const int directionPinX = 9;
 const int stepPinAnemometer = 11;
 const int directionPinAnemometer = 12;
-const int motorSpeedX = 500;
-const int motorSpeedY = 500;
-const int motorSpeedAnemometer = 1000;
+const int motorSpeedX = 200;
+const int motorSpeedY = 200;
+const int motorSpeedAnemometer = 750;
 
 // Define switch variables
 const int motorSwitchX = 4;
@@ -145,6 +145,21 @@ void loop()
     setPins();
     for(float i = 0.0; i < numberOfSteps; i++) 
     {
+      moveMotors();
+    }
+    Serial.write('1');
+  }
+  
+  // autoMove
+  else if(pythonCommand == '2')
+  {
+    setPins();
+    for(float i = 0.0; i < numberOfSteps; i++) 
+    {
+      if (digitalRead(motorSwitchX) == LOW || digitalRead(channelSwitchX) == LOW
+        || digitalRead(motorSwitchY) == LOW || digitalRead(channelSwitchY) == LOW) {
+          i = numberOfSteps + 1.0;
+      }
       moveMotors();
     }
     Serial.write('1');

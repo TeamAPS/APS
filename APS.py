@@ -288,14 +288,14 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				if reply != QtWidgets.QMessageBox.Yes:
 					return False
 			else:
-
 				ensureMsg = "Are you sure you want enter Auto Mode? Is the anemometer in the down position?"
 				reply = QtWidgets.QMessageBox.question(self, 'Auto Mode', \
 				ensureMsg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-				if reply != QtWidgets.QMessageBox.Yes:
+				if reply == QtWidgets.QMessageBox.No:
 					return False
 				else:
 					try:
+						print("BLAH")
 						self.autoMove()
 					except Exception as e:
 						print(e)
@@ -365,6 +365,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.APSsetupStatus.text()))
       
 	def autoMove(self):
+		print("Here1")
 		# Move to top left corner
 		self.moveMotor("y", self.yUp, self.toSteps(100),"2")
 		self.moveMotor("y", self.yDown, self.toSteps(0.25))
