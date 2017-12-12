@@ -110,29 +110,29 @@ void loop()
     setPins();
     for(float i = 0.0; i < numberOfSteps; i++)
     {
-      if (digitalRead(motorSwitchX) == LOW || digitalRead(channelSwitchX) == LOW
-        || digitalRead(motorSwitchY) == LOW || digitalRead(channelSwitchY) == LOW)
+      if(directionPinRead == directionPinX)
       {
-        if(directionPinRead == directionPinX)
+        if (digitalRead(motorSwitchX) == LOW || digitalRead(channelSwitchX) == LOW)
         {
           Serial.println(String(xStepCounter));
           i = numberOfSteps + 1.0;
         }
         else
         {
+          moveMotors();
+          xStepCounter++;
+        }
+      }
+      else if (directionPinRead == directionPinY)
+      {
+        if (digitalRead(motorSwitchY) == LOW || digitalRead(channelSwitchY) == LOW)
+        {
           Serial.println(String(yStepCounter));
           i = numberOfSteps + 1.0;
         }
-      }
-      else
-      {
-        moveMotors();
-        if (directionPinRead == directionPinX)
-        {
-          xStepCounter++;
-        }
         else
         {
+          moveMotors();
           yStepCounter++;
         }
       }  
@@ -145,21 +145,6 @@ void loop()
     setPins();
     for(float i = 0.0; i < numberOfSteps; i++) 
     {
-      moveMotors();
-    }
-    Serial.write('1');
-  }
-  
-  // autoMove
-  else if(pythonCommand == '2')
-  {
-    setPins();
-    for(float i = 0.0; i < numberOfSteps; i++) 
-    {
-      if (digitalRead(motorSwitchX) == LOW || digitalRead(channelSwitchX) == LOW
-        || digitalRead(motorSwitchY) == LOW || digitalRead(channelSwitchY) == LOW) {
-          i = numberOfSteps + 1.0;
-      }
       moveMotors();
     }
     Serial.write('1');

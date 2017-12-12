@@ -38,7 +38,6 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yRange = None # steps
 		self.currentX = None # steps
 		self.currentY = None # steps
-		self.APSsetupStatus.setText("APS Setup Completed!")
 		
 		# Must be fixed by user - Distance from tip to motor axis
 		self.anemometerExtension = 10.25 # inches. 
@@ -91,42 +90,42 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		# For x: CW moves the carriage towards motor
 
 		# Calibrate Y
-		# Go all the way to the bottom
-		# Move 100 inches to ensure hitting the switch
-		self.moveMotor("y","CCW", self.toSteps(100), True)
-		
-		# Go 100 steps up to clear the switch
-		self.moveMotor("y","CW", 100.0)
-		
 		# Go all the way to the top
 		# Move 100 inches to ensure hitting the switch
-		self.moveMotor("y","CW", self.toSteps(100), True)
+		self.moveMotor("y",self.yUp, self.toSteps(100), True)
 		
-		# Go 100 steps down to clear the switch
-		self.moveMotor("y","CCW", 100.0)
+		# Go .25 in steps down to clear the switch
+		self.moveMotor("y", self.yDown, self.toSteps(0.25))
+		
+		# Go all the way to the bottom
+		# Move 100 inches to ensure hitting the switch
+		self.moveMotor("y", self.yDown, self.toSteps(100), True)
+		
+		# Go .25 in up to clear the switch
+		self.moveMotor("y", self.yUp, self.toSteps(0.25))
 		
 		# Calibrate X
 		# Go all the way to the right
 		# Move 100 inches to ensure hitting the switch
-		self.moveMotor("x","CW", self.toSteps(100), True)
+		self.moveMotor("x", self.xRight, self.toSteps(100), True)
 		
-		# Go 100 steps to the left to clear the switch
-		self.moveMotor("x","CCW", 100.0)
+		# Go .25 in to the left to clear the switch
+		self.moveMotor("x", self.xLeft, self.toSteps(0.25))
 		
 		# Go all the way to the left
 		# Move 100 inches to ensure hitting the switch
-		movementDone = self.moveMotor("x","CCW", self.toSteps(100), True)
+		movementDone = self.moveMotor("x", self.xLeft, self.toSteps(100), True)
 		
-		# Go 100 steps to the right to clear the switch
-		self.moveMotor("x","CW", 100.0)
+		# Go .25 in to the right to clear the switch
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
 		
 		# Set where the anemometer currently is
 		self.currentX = self.xRange
 		self.currentY = self.yRange
 		
-		# Don't forget to add the 100 steps to the current ranges
-		self.xRange = self.xRange + 100.0
-		self.yRange = self.yRange + 100.0 
+		# Don't forget to add the .25 in to the current ranges
+		self.xRange = self.xRange + self.toSteps(0.25)
+		self.yRange = self.yRange + self.toSteps(0.25) 
     
 		if movementDone:
 			self.findPlaneLimits.setEnabled(False)
@@ -197,6 +196,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		else:
 			directions = {"CW":[directionPinAnemometer, "0"],
 				"CCW": [directionPinAnemometer, "1"]}
+
 		axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
 		if calibrationFlag == None:
 			self.arduinoSerial.write("1\n")
@@ -238,20 +238,22 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.timeOperationLabel.setText("Measurement Time (sec.):")
 			self.xSlider.setEnabled(True)
 			self.ySlider.setEnabled(True)
+			self.xOperationChoice.setEnabled(True) #remove after design show
+			self.yOperationChoice.setEnabled(True) #remove after design show
+			self.timeOperationChoice.setEnabled(True) #remove after design show
 		
-			if self.manualModeRadio.isChecked():
-				self.xOperationLabel.setText("X Position (in.):")
-				self.yOperationLabel.setText("Y Position (in.):")
-				self.timeOperationLabel.setText("Measurement Time (sec.):")
+		if self.autoModeRadio.isChecked():
+			self.xOperationLabel.setText("Number of X Positions:")
+			self.yOperationLabel.setText("Number of Y Positions:")
+			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
+			self.xOperationChoice.setEnabled(False) #remove after design show
+			self.yOperationChoice.setEnabled(False) #remove after design show
+			self.timeOperationChoice.setEnabled(False) #remove after design show
 		
-			if self.autoModeRadio.isChecked():
-				self.xOperationLabel.setText("Number of X Positions:")
-				self.yOperationLabel.setText("Number of Y Positions:")
-				self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
-					
-			self.xOperationChoice.setEnabled(True)
-			self.yOperationChoice.setEnabled(True)
-			self.timeOperationChoice.setEnabled(True)
+		# Commented out for design show
+		#self.xOperationChoice.setEnabled(True)
+		#self.yOperationChoice.setEnabled(True)
+		#self.timeOperationChoice.setEnabled(True)
 			
 	def enableStart(self):
 		self.operationModeStatus.setText("Operation Not Set Up")
@@ -265,10 +267,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 		
-		if self.autoModeRadio.isChecked() and \
-		self.xOperationChoice.displayText().isdigit() and \
-		self.yOperationChoice.displayText().isdigit() and \
-		self.timeOperationChoice.displayText().replace('.','',1).isdigit():
+		# Commented out for design show
+		if self.autoModeRadio.isChecked():# and \
+		#self.xOperationChoice.displayText().isdigit() and \
+		#self.yOperationChoice.displayText().isdigit() and \
+		#self.timeOperationChoice.displayText().replace('.','',1).isdigit():
 				self.operationModeStatus.setText("Operation Set Up!")
 				self.operationStart.setEnabled(True)
 				
@@ -339,14 +342,20 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		
 	def demoMode(self):
 		if self.APSsetupStatus.text().endswith("!"):
-			self.moveMotor("y","CCW",self.toSteps(5))
-			self.moveMotor("x", "CW", self.toSteps(9))
-			self.currentX = self.currentX - self.toSteps(9)
-			if self.currentX > 0.5 * self.xRange:
-				self.moveMotor("a","CW", 1600 / 4)
-			else:
-				self.moveMotor("a","CCW", 1600 / 4)
-			#self.moveMotor("y","CCW", self.yRange - self.currentY - 100.0)
+			self.moveMotor("a", "CCW", 1600 / 2)
+			self.moveMotor("x", self.xRight, self.xRange - self.toSteps(0.5))
+			self.moveMotor("a", "CCW", 1600 / 4)
+			self.moveMotor("y", self.yUp, self.yRange - self.toSteps(0.5))
+			self.moveMotor("a", "CCW", 1600 / 4)
+			self.moveMotor("x", self.xLeft, self.xRange - self.toSteps(0.5))
+			self.moveMotor("a", "CCW", 1600 / 4)
+			self.moveMotor("y", self.yDown, self.yRange / 2)
+			self.moveMotor("x", self.xRight, self.xRange / 2)
+			self.moveMotor("a", "CW", 3 * 1600 / 4)
+			self.moveMotor("a", "CCW", 1600)
+			self.moveMotor("y", self.yDown, (self.yRange / 2) - self.toSteps(0.5))
+			self.moveMotor("x", self.xLeft, (self.xRange / 2) - self.toSteps(0.5))
+			self.moveMotor("a", "CW", 1600 / 2)
 			
 		else:
 			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
