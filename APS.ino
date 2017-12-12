@@ -149,5 +149,20 @@ void loop()
     }
     Serial.write('1');
   }
+  
+  // autoMove
+  else if(pythonCommand == '2')
+  {
+    setPins();
+    for(float i = 0.0; i < numberOfSteps; i++) 
+    {
+      if (digitalRead(motorSwitchX) == LOW || digitalRead(channelSwitchX) == LOW
+        || digitalRead(motorSwitchY) == LOW || digitalRead(channelSwitchY) == LOW) {
+          i = numberOfSteps + 1.0;
+      }
+      moveMotors();
+    }
+    Serial.write('1');
+  }
 }
 
