@@ -243,12 +243,14 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.timeOperationChoice.setEnabled(True) #remove after design show
 		
 		if self.autoModeRadio.isChecked():
+			self.operationStart.setEnabled(True) #remove after design show
 			self.xOperationLabel.setText("Number of X Positions:")
 			self.yOperationLabel.setText("Number of Y Positions:")
 			self.timeOperationLabel.setText("Individual Measurement Time (sec.):")
 			self.xOperationChoice.setEnabled(False) #remove after design show
 			self.yOperationChoice.setEnabled(False) #remove after design show
 			self.timeOperationChoice.setEnabled(False) #remove after design show
+			self.xOperationChoice.setText(" ") #remove after design show
 		
 		# Commented out for design show
 		#self.xOperationChoice.setEnabled(True)
