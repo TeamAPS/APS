@@ -479,6 +479,8 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="demoModeOption"/>
+    <addaction name="separator"/>
     <addaction name="userManualOption"/>
     <addaction name="aboutOption"/>
    </widget>
@@ -493,6 +495,11 @@
   <action name="aboutOption">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="demoModeOption">
+   <property name="text">
+    <string>Demo Mode</string>
    </property>
   </action>
  </widget>

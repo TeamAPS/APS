@@ -28,6 +28,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yOperationChoice.setEnabled(False)
 		self.timeOperationChoice.setEnabled(False)
 		self.operationStart.setEnabled(False)
+		self.ySlider.setEnabled(False)
+		self.xSlider.setEnabled(False)
+		self.manualModeRadio.setEnabled(False)
+		self.autoModeRadio.setEnabled(False)
 		self.arduinoSerial = None
 		self.dataFilePath = None
 		self.xRange = None # steps
@@ -52,6 +56,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yOperationChoice.textChanged.connect(self.enableStart)
 		self.timeOperationChoice.textChanged.connect(self.enableStart)
 		self.operationStart.clicked.connect(self.startAPS)
+		self.aboutOption.triggered.connect(self.aboutPopup)
+		self.xSlider.valueChanged.connect(self.xSliderChanged)
+		self.ySlider.valueChanged.connect(self.ySliderChanged)
+		self.demoModeOption.triggered.connect(self.demoMode)
 		
 	def connectArduino(self):
 		# The first space is where the port name ends
@@ -114,14 +122,20 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.findPlaneLimits.setEnabled(False)
 			self.APSsetupStatus.setText("APS Setup Completed!")
 			self.comPortChoice.setEnabled(False)
-			self.maximumXlabel.setText("Maximum X:" + str(round(self.toInches(self.xRange), 3) \
-			+ self.anemometerExtension) + "in.")
-			self.maximumYlabel.setText("Maximum Y:" + str(round(self.toInches(self.yRange), 3) \
-			+ self.anemometerExtension) + "in.")
+			self.maximumXlabel.setText("Maximum X:" + str(round(self.toInches(self.xRange), 1) \
+			+ self.anemometerExtension) + " in.")
+			self.maximumYlabel.setText("Maximum Y:" + str(round(self.toInches(self.yRange), 1) \
+			+ self.anemometerExtension) + " in.")
 			self.currentXlabel.setText("Current X:" + str(round(self.toInches(self.currentX), \
-			3)) + "in.")
+			1)) + " in.")
 			self.currentYlabel.setText("Current Y:" + str(round(self.toInches(self.currentY), \
-			3)) + "in.")
+			1)) + " in.")
+			self.manualModeRadio.setEnabled(True)
+			self.autoModeRadio.setEnabled(True)
+			self.xSlider.setMinimum(0)
+			self.xSlider.setMaximum(int(self.xRange))
+			self.ySlider.setMinimum(0)
+			self.ySlider.setMaximum(int(self.yRange))
 		
 	def selectDataPath(self):
 		# The first item in the tuple is the file path needed
@@ -171,8 +185,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			directions = {"CW":[directionPinY, "1"],
 				"CCW": [directionPinY, "0"]}
 		else:
-			directions = {"CW":[directionPinAnemometer, "1"],
-				"CCW": [directionPinAnemometer, "0"]}
+			directions = {"CW":[directionPinAnemometer, "0"],
+				"CCW": [directionPinAnemometer, "1"]}
 		
 		axes = {"x": stepPinX, "y": stepPinY, "a": stepPinAnemometer}
 		
@@ -202,6 +216,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			
 	def modeChanged(self):
 		self.operationStart.setEnabled(False)
+		self.xSlider.setEnabled(False)
+		self.ySlider.setEnabled(False)
+		self.xSlider.setValue(0)
+		self.ySlider.setValue(0)
 		self.xOperationChoice.setText("")
 		self.yOperationChoice.setText("")
 		self.timeOperationChoice.setText("")
@@ -210,6 +228,8 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.xOperationLabel.setText("X Position (in.):")
 			self.yOperationLabel.setText("Y Position (in.):")
 			self.timeOperationLabel.setText("Measurement Time (sec.):")
+			self.xSlider.setEnabled(True)
+			self.ySlider.setEnabled(True)
 		
 		if self.autoModeRadio.isChecked():
 			self.xOperationLabel.setText("Number of X Positions:")
@@ -246,14 +266,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				return True # put APS go! manual code here
 			else:
 				return True # call self.calculateDataPoints here
-
-		elif self.APSsetupStatus.text().endswith("!"):
-			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.dataPathStatus.text()))
-		elif self.dataPathStatus.text().endswith("!"):
-			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()))
 		else:
-			QtWidgets.QMessageBox.warning(self, "APS Error", str(self.APSsetupStatus.text()) + \
-			"\n" + str(self.dataPathStatus.text()))
+			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
+			self.dataPathStatus.text()))
 			
 	def toInches(self, steps):
 		pulleyDiameter = 0.955 # Inches
@@ -270,6 +285,40 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		conversionFactor = stepsPerRevolution / revolution
 		inSteps = conversionFactor * inches
 		return math.floor(inSteps)
+		
+	def aboutPopup(self):
+		QtWidgets.QMessageBox.about(self, "About APS", "Anemometer "
+		"Positioning Device (APS)\n\nDesigned and programmed by Team"
+		" APS:\nHashim Al Lawati - allaw009@umn.edu\nSyed Farhan Abid"
+		" - abidx011@umn.edu\nAdam Jenson - jenso081@umn.edu\n"
+		"Matthew Albers - alber433@umn.edu\nMaxwell Fite - "
+		"fitex005@umn.edu\n\nUniversity of Minnesota\nME4054W - "
+		"Fall 2017\n\nProject Advisor:\nNicholas Hugh\nDaikin Applied"
+		"\nnicholas.hugh@daikinapplied.com")
+		
+	def xSliderChanged(self):
+		self.xOperationChoice.setText(str(round( \
+		self.toInches(self.xSlider.value()), 1)))
+	
+	def ySliderChanged(self):
+		self.yOperationChoice.setText(str(round( \
+		self.toInches(self.ySlider.value()), 1)))
+		
+	def demoMode(self):
+		if self.APSsetupStatus.text().endswith("!"):
+			self.moveMotor("y","CCW",self.toSteps(5))
+			self.moveMotor("x", "CW", self.toSteps(9))
+			self.currentX = self.currentX - self.toSteps(9)
+			if self.currentX > 0.5 * self.xRange:
+				self.moveMotor("a","CW", 1600 / 4)
+			else:
+				self.moveMotor("a","CCW", 1600 / 4)
+			#self.moveMotor("y","CCW", self.yRange - self.currentY - 100.0)
+			
+		else:
+			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
+			self.APSsetupStatus.text()))
+		
 		
 		
 
