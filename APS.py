@@ -1,6 +1,8 @@
 import os
 import sys
 import serial
+import time
+import datetime
 from PyQt5 import QtWidgets, uic
 import serial.tools.list_ports
 import math
@@ -38,9 +40,13 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.yRange = None # steps
 		self.currentX = None # steps
 		self.currentY = None # steps
+		self.topClearance = None #inches
+		self.bottomClearance = None #inches
+		self.leftClearance = None #inches
+		self.rightClearance = None #inches
+		self.anemometerExtension = 8 # inches. 
 		
 		# Must be fixed by user - Distance from tip to motor axis
-		self.anemometerExtension = 10.25 # inches. 
 		self.topAngleRot = math.radians(120) # Angles to reach top corners
 		self.botAngleRot = math.radians(35) # Angles to reach bottom corners
 		self.yUp = "CW"
@@ -66,9 +72,9 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.timeOperationChoice.textChanged.connect(self.enableStart)
 		self.operationStart.clicked.connect(self.startAPS)
 		self.aboutOption.triggered.connect(self.aboutPopup)
+		self.configureAPSoption.triggered.connect(self.configureAPS)
 		self.xSlider.valueChanged.connect(self.xSliderChanged)
 		self.ySlider.valueChanged.connect(self.ySliderChanged)
-		self.demoModeOption.triggered.connect(self.demoMode)
 		
 	def connectArduino(self):
 		# The first space is where the port name ends
@@ -158,6 +164,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 			self.dataPathStatus.setText("Data File Selected!")
 			self.dataFilePath = filePath
 			self.dataPathBox.setText(filePath)
+			file = open(self.dataFilePath, 'a')
+			headers = "No.			Date and Time			X Position (in.)			Y Position (in.)\n"
+			file.write(headers)
+			file.close()
 	
 	def updateDataPath(self):
 		filePath = self.dataPathBox.displayText()
@@ -170,6 +180,10 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				self.dataPathStatus.setText("Data File Selected!")
 				self.dataFilePath = filePath
 				self.dataPathBox.setText(filePath)
+				file = open(self.dataFilePath, 'a')
+				headers = "No.			Date and Time			X Position (in.)			Y Position (in.)\n"
+				file.write(headers)
+				file.close()
 			# If you get an error, it means the path isn't valid
 			except:
 				self.dataPathStatus.setText("Please Select a Valid File")
@@ -282,11 +296,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if self.APSsetupStatus.text().endswith("!"):
 		#and self.dataPathStatus.text().endswith("!"):
 			if self.manualModeRadio.isChecked():
-				ensureMsg = "Are you sure you want enter Manual Mode?"
-				reply = QtWidgets.QMessageBox.question(self, 'Manual Mode', \
-				ensureMsg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
-				if reply != QtWidgets.QMessageBox.Yes:
-					return False
+				self.manualMove()
 			else:
 				ensureMsg = "Are you sure you want enter Auto Mode? Is the anemometer in the down position?"
 				reply = QtWidgets.QMessageBox.question(self, 'Auto Mode', \
@@ -295,7 +305,6 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 					return False
 				else:
 					try:
-						print("BLAH")
 						self.autoMove()
 					except Exception as e:
 						print(e)
@@ -342,67 +351,41 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 	def ySliderChanged(self):
 		self.yOperationChoice.setText(str(round( \
 		self.toInches(self.ySlider.value()), 1)))
-		
-	def demoMode(self):
-		if self.APSsetupStatus.text().endswith("!"):
-			self.moveMotor("a", "CCW", 1600 / 2)
-			self.moveMotor("x", self.xRight, self.xRange - self.toSteps(0.5))
-			self.moveMotor("a", "CCW", 1600 / 4)
-			self.moveMotor("y", self.yUp, self.yRange - self.toSteps(0.5))
-			self.moveMotor("a", "CCW", 1600 / 4)
-			self.moveMotor("x", self.xLeft, self.xRange - self.toSteps(0.5))
-			self.moveMotor("a", "CCW", 1600 / 4)
-			self.moveMotor("y", self.yDown, self.yRange / 2)
-			self.moveMotor("x", self.xRight, self.xRange / 2)
-			self.moveMotor("a", "CW", 3 * 1600 / 4)
-			self.moveMotor("a", "CCW", 1600)
-			self.moveMotor("y", self.yDown, (self.yRange / 2) - self.toSteps(0.5))
-			self.moveMotor("x", self.xLeft, (self.xRange / 2) - self.toSteps(0.5))
-			self.moveMotor("a", "CW", 1600 / 2)
-			
-		else:
-			QtWidgets.QMessageBox.warning(self, "APS Error", str( \
-			self.APSsetupStatus.text()))
       
 	def autoMove(self):
-		print("Here1")
-		# Move to top left corner
-		self.moveMotor("y", self.yUp, self.toSteps(100),"2")
-		self.moveMotor("y", self.yDown, self.toSteps(0.25))
-		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
-		self.moveMotor("x", self.xRight, self.toSteps(0.25))
-		self.moveMotor("a", "CW", 533)
+		self.moveMotor("a","CCW",1600)
 		
-		#Moving along top
-		self.moveMotor("x", self.xRight, self.toSteps(100),"2")
-		self.moveMotor("x", self.xLeft, self.toSteps(1))
-		self.moveMotor("a", "CCW", 1066)
+	def configureAPS(self):
+		QtWidgets.QMessageBox.information(self, "APS Configuration", str("hello"), \
+		QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel)
 		
-		#Moving along top
-		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
-		self.moveMotor("x", self.xRight, self.toSteps(0.25))
+		#make these variables later, and add .25 for clearing the switches
+		self.topClearance = 6 + 0.25
+		self.bottomClearance = 6 + 0.25
+		self.leftClearance = 6 + 0.25
+		self.rightClearance = 6 + 0.25
 		
-		#Moving down
-		self.moveMotor("a", "CW", 1066)
-		self.moveMotor("y", self.yDown, self.toSteps(100),"2")
-		self.moveMotor("y", self.yUp, self.toSteps(0.25))
-		self.moveMotor("a", "CCW", 378)
 		
-		# Moving along bottom
-		self.moveMotor("x", self.xRight, self.toSteps(100),"2")
-		self.moveMotor("x", self.xLeft, self.toSteps(1))
-		self.moveMotor("a", "CCW", 310)
+	def manualMove(self):
+		xSpan = self.leftClearance + self.toInches(self.xRange) + self.rightClearance
+		ySpan = self.bottomClearance + self.toInches(self.yRange) + self.topClearance
+		xDesired = float(self.xOperationChoice.displayText())
+		yDesired = float(self.yOperationChoice.displayText())
 		
-		#Moving along top
-		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
-		self.moveMotor("x", self.xRight, self.toSteps(0.25))
-		self.moveMotor("a", "CW", 155)
+		if yDesired > (ySpan / 2):
+			if xDesired < self.leftClearance:
+				deltaX = self.leftClearance - xDesired
+				angle = math.atan(self.anemometerExtension / deltaX)
+				yCompensation = self.anemometerExtension * (1 - math.sin(angle))
+				anemometerSteps = 1600.0 * ( (3 * math.pi / 2) - angle) / (2 * math.pi)
+				self.moveMotor("a","CCW", anemometerSteps)
+				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
+				- self.anemometerExtension + yCompensation - \
+				self.bottomClearance))
+				print ySpan
+				
+			
 		
-		#Return to (0,0)
-		self.moveMotor("y", self.yDown, self.toSteps(100),"2")
-		self.moveMotor("y", self.yUp, self.toSteps(0.25))
-		self.moveMotor("x", self.xLeft, self.toSteps(100),"2")
-		self.moveMotor("x", self.xRight, self.toSteps(0.25))
 		
 
 def main():

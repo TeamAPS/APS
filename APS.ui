@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1145</width>
-    <height>826</height>
+    <width>1143</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -450,7 +450,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1145</width>
+     <width>1143</width>
      <height>31</height>
     </rect>
    </property>
@@ -458,11 +458,17 @@
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="demoModeOption"/>
     <addaction name="separator"/>
     <addaction name="userManualOption"/>
     <addaction name="aboutOption"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="configureAPSoption"/>
+   </widget>
+   <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -479,6 +485,11 @@
   <action name="demoModeOption">
    <property name="text">
     <string>Demo Mode</string>
+   </property>
+  </action>
+  <action name="configureAPSoption">
+   <property name="text">
+    <string>Configure APS</string>
    </property>
   </action>
  </widget>
