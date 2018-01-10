@@ -44,7 +44,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.bottomClearance = None #inches
 		self.leftClearance = None #inches
 		self.rightClearance = None #inches
-		self.anemometerExtension = 8 # inches. 
+		self.anemometerExtension = 10.75 # inches
 		
 		# Must be fixed by user - Distance from tip to motor axis
 		self.topAngleRot = math.radians(120) # Angles to reach top corners
@@ -362,7 +362,7 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		#make these variables later, and add .25 for clearing the switches
 		self.topClearance = 6 + 0.25
 		self.bottomClearance = 6 + 0.25
-		self.leftClearance = 6 + 0.25
+		self.leftClearance = 10 + 0.25 #to motor shaft
 		self.rightClearance = 6 + 0.25
 		
 		
@@ -375,14 +375,22 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		if yDesired > (ySpan / 2):
 			if xDesired < self.leftClearance:
 				deltaX = self.leftClearance - xDesired
-				angle = math.atan(self.anemometerExtension / deltaX)
+				angle = math.acos(deltaX / self.anemometerExtension)
 				yCompensation = self.anemometerExtension * (1 - math.sin(angle))
 				anemometerSteps = 1600.0 * ( (3 * math.pi / 2) - angle) / (2 * math.pi)
+				
 				self.moveMotor("a","CCW", anemometerSteps)
 				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
 				- self.anemometerExtension + yCompensation - \
-				self.bottomClearance))
-				print ySpan
+				self.bottomClearance - 3.5))
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				self.moveMotor("y",self.yDown, self.toSteps(100), "2")
+				self.moveMotor("y", self.yUp, self.toSteps(0.25))
+				self.moveMotor("x", self.xLeft, self.toSteps(100), "2")
+				self.moveMotor("x", self.xRight, self.toSteps(0.25))
+				self.moveMotor("a","CW", anemometerSteps)
 				
 			
 		
