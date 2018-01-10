@@ -356,14 +356,14 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		self.moveMotor("a","CCW",1600)
 		
 	def configureAPS(self):
-		QtWidgets.QMessageBox.information(self, "APS Configuration", str("hello"), \
+		QtWidgets.QMessageBox.information(self, "APS Configuration", "hello", \
 		QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Cancel)
 		
 		#make these variables later, and add .25 for clearing the switches
 		self.topClearance = 6 + 0.25
-		self.bottomClearance = 6 + 0.25
+		self.bottomClearance = 10 + 0.25
 		self.leftClearance = 10 + 0.25 #to motor shaft
-		self.rightClearance = 6 + 0.25
+		self.rightClearance = 10 + 0.25
 		
 		
 	def manualMove(self):
@@ -372,7 +372,11 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 		xDesired = float(self.xOperationChoice.displayText())
 		yDesired = float(self.yOperationChoice.displayText())
 		
-		if yDesired > (ySpan / 2):
+		if yDesired > ySpan or xDesired > xSpan:
+			QtWidgets.QMessageBox.warning(self, "APS Error", "Chosen point is outside the " \
+			"plane limits.")
+		
+		elif yDesired > (ySpan / 2):
 			if xDesired < self.leftClearance:
 				deltaX = self.leftClearance - xDesired
 				angle = math.acos(deltaX / self.anemometerExtension)
@@ -382,15 +386,92 @@ class APSGUI(QtWidgets.QMainWindow, Ui_MainWindow):
 				self.moveMotor("a","CCW", anemometerSteps)
 				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
 				- self.anemometerExtension + yCompensation - \
-				self.bottomClearance - 3.5))
+				self.bottomClearance - 3.5)) # 3.5 is from shaft to switch
 				
 				time.sleep(float(self.timeOperationChoice.displayText()))
 				
-				self.moveMotor("y",self.yDown, self.toSteps(100), "2")
-				self.moveMotor("y", self.yUp, self.toSteps(0.25))
-				self.moveMotor("x", self.xLeft, self.toSteps(100), "2")
-				self.moveMotor("x", self.xRight, self.toSteps(0.25))
+				#go home
+				self.goHome()
 				self.moveMotor("a","CW", anemometerSteps)
+			
+			elif xDesired > (self.leftClearance + self.toInches(self.xRange)):
+				deltaX = xDesired - (self.leftClearance + self.toInches(self.xRange))
+				angle = math.acos(deltaX / self.anemometerExtension)
+				yCompensation = self.anemometerExtension * (1 - math.sin(angle))
+				anemometerSteps = 1600.0 * ( (3 * math.pi / 2) - angle) / (2 * math.pi)
+				
+				self.moveMotor("a","CW", anemometerSteps)
+				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
+				- self.anemometerExtension + yCompensation - \
+				self.bottomClearance - 3.5))
+				self.moveMotor("x", self.xRight, self.xRange - self.toSteps(0.5))
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				#go home
+				self.goHome()
+				self.moveMotor("a","CCW", anemometerSteps)
+				
+			else:
+				self.moveMotor("a", "CCW", 1600 / 2)
+				self.moveMotor("x", self.xRight, self.toSteps(xDesired - self.leftClearance))
+				self.moveMotor("y", self.yUp, self.toSteps(yDesired - self.anemometerExtension \
+				- self.bottomClearance))
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				self.goHome()
+				self.moveMotor("a", "CW", 1600 / 2)
+		
+		elif yDesired <= (ySpan / 2):
+			if xDesired < self.leftClearance:
+				deltaX = self.leftClearance - xDesired
+				angle = math.acos(deltaX / self.anemometerExtension)
+				yCompensation = self.anemometerExtension * (1 - math.sin(angle))
+				anemometerSteps = 1600.0 * ( (math.pi / 2) - angle) / (2 * math.pi)
+				
+				self.moveMotor("a","CW", anemometerSteps)
+				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
+				+ self.anemometerExtension - yCompensation - self.bottomClearance)) 
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				#go home
+				self.goHome()
+				self.moveMotor("a","CCW", anemometerSteps)
+			
+			elif xDesired > (self.leftClearance + self.toInches(self.xRange)):
+				deltaX = xDesired - (self.leftClearance + self.toInches(self.xRange))
+				angle = math.acos(deltaX / self.anemometerExtension)
+				yCompensation = self.anemometerExtension * (1 - math.sin(angle))
+				anemometerSteps = 1600.0 * ( (math.pi / 2) - angle) / (2 * math.pi)
+				
+				self.moveMotor("a","CCW", anemometerSteps)
+				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
+				+ self.anemometerExtension - yCompensation - self.bottomClearance)) 
+				self.moveMotor("x", self.xRight, self.xRange - self.toSteps(0.5))
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				#go home
+				self.goHome()
+				self.moveMotor("a","CW", anemometerSteps)
+				
+			else:
+				self.moveMotor("x", self.xRight, self.toSteps(xDesired - self.leftClearance))
+				self.moveMotor("y",self.yUp, self.toSteps(yDesired \
+				+ self.anemometerExtension - self.bottomClearance)) 
+				
+				time.sleep(float(self.timeOperationChoice.displayText()))
+				
+				self.goHome()
+				
+				
+	def goHome(self):
+		self.moveMotor("y",self.yDown, self.toSteps(100), "2")
+		self.moveMotor("y", self.yUp, self.toSteps(0.25))
+		self.moveMotor("x", self.xLeft, self.toSteps(100), "2")
+		self.moveMotor("x", self.xRight, self.toSteps(0.25))
 				
 			
 		
